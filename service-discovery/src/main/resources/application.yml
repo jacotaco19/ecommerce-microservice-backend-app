@@ -6,7 +6,7 @@ spring:
     name: SERVICE-DISCOVERY
   profiles:
     active:
-    - dev
+      - dev
 
 resilience4j:
   circuitbreaker:
