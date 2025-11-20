@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = 'jacoboossag'
-        DOCKER_CREDENTIALS_ID = 'docker-pwd'
+        DOCKER_CREDENTIALS_ID = 'docker_pwd'
         SERVICES = 'api-gateway cloud-config favourite-service order-service payment-service product-service proxy-client service-discovery shipping-service user-service locust'
         K8S_NAMESPACE = 'default'
     }
@@ -139,7 +139,7 @@ pipeline {
                             'e2e-tests'
                     ]
 
-                    withSonarQubeEnv(credentialsId: 'sq-token', installationName: 'lil sonar installation') {
+                    withSonarQubeEnv(credentialsId: 'sq_access_token', installationName: 'lil sonar installation') {
                         javaServices.each { service ->
                             dir(service) {
                                 sh "${scannerHome}/bin/sonar-scanner " +
@@ -237,8 +237,8 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker-pwd')]) {
-                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker-pwd}"
+                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
                     script {
                         SERVICES.split().each { service ->
                             sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
