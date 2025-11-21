@@ -614,10 +614,18 @@ pipeline {
         stage('Create Namespace') {
             when { branch 'master' }
             steps {
-                sh '''
-            export KUBECONFIG=$WORKSPACE/kubeconfig
-            kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
-        '''
+                withAWS(credentials: 'aws-cred', region: 'us-east-1') {
+                    sh '''
+                export KUBECONFIG=$WORKSPACE/kubeconfig
+                aws eks update-kubeconfig \
+                    --name ecommerce-prod \
+                    --region us-east-1 \
+                    --role-arn arn:aws:iam::058264169618:role/gh-ecommerce-ingesoft \
+                    --kubeconfig $KUBECONFIG
+
+                kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
+            '''
+                }
             }
         }
 
