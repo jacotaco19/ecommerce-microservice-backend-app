@@ -670,11 +670,9 @@ pipeline {
                         git config user.email "jacobo.ossa@u.icesi.edu.co"
                     '''
 
-                    // Última etiqueta
                     def lastTag = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
                     def commitMessages = sh(script: "git log ${lastTag}..HEAD --pretty=%B", returnStdout: true).trim()
 
-                    // Determinar tipo de versión
                     def bumpType = ''
                     if (commitMessages.contains('BREAKING CHANGE')) {
                         bumpType = 'major'
@@ -701,21 +699,66 @@ pipeline {
                         case 'patch':
                             versionParts[2] += 1; break
                     }
-
                     env.NEW_VERSION = versionParts.join('.')
                     echo "New version: ${env.NEW_VERSION}"
 
-                    // Generar Release Notes
-                    def commits = sh(script: "git log ${lastTag}..HEAD --pretty=format:'%h %s (%an)'", returnStdout: true).trim()
-                    writeFile file: 'RELEASE_NOTES.md', text: """    
-                        # Release v${env.NEW_VERSION}
-                        ## Changes since ${lastTag}
+                    def commitsRaw = sh(script: "git log ${lastTag}..HEAD --pretty=format:'%h %s (%an)'", returnStdout: true).trim()
 
-                        ${commits}
-                    """
+                    def features = []
+                    def fixes = []
+                    def chores = []
+                    def docs = []
+                    def breaking = []
+
+                    commitsRaw.split('\n').each { line ->
+                        def lower = line.toLowerCase()
+                        if (lower.contains('breaking change')) {
+                            breaking << line
+                        } else if (lower.startsWith('feat')) {
+                            features << line
+                        } else if (lower.startsWith('fix')) {
+                            fixes << line
+                        } else if (lower.startsWith('chore')) {
+                            chores << line
+                        } else if (lower.startsWith('docs')) {
+                            docs << line
+                        } else {
+                            chores << line
+                        }
+                    }
+
+                    def releaseNotes = "# Release v${env.NEW_VERSION}\n"
+                    releaseNotes += "## Changes since ${lastTag}\n\n"
+
+                    if (breaking) {
+                        releaseNotes += "### BREAKING CHANGES\n"
+                        breaking.each { releaseNotes += "- ${it}\n" }
+                        releaseNotes += "\n"
+                    }
+                    if (features) {
+                        releaseNotes += "### Features\n"
+                        features.each { releaseNotes += "- ${it}\n" }
+                        releaseNotes += "\n"
+                    }
+                    if (fixes) {
+                        releaseNotes += "### Bug Fixes\n"
+                        fixes.each { releaseNotes += "- ${it}\n" }
+                        releaseNotes += "\n"
+                    }
+                    if (docs) {
+                        releaseNotes += "### Documentation\n"
+                        docs.each { releaseNotes += "- ${it}\n" }
+                        releaseNotes += "\n"
+                    }
+                    if (chores) {
+                        releaseNotes += "### Chores / Misc\n"
+                        chores.each { releaseNotes += "- ${it}\n" }
+                        releaseNotes += "\n"
+                    }
+
+                    writeFile file: 'RELEASE_NOTES.md', text: releaseNotes
                     archiveArtifacts artifacts: 'RELEASE_NOTES.md', fingerprint: true
 
-                    // Commit + Tag + Push usando PAT
                     withCredentials([usernamePassword(credentialsId: 'gh-acces', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh """
                             git add RELEASE_NOTES.md
@@ -730,6 +773,7 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
