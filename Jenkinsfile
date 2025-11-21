@@ -59,18 +59,18 @@ pipeline {
             }
         }
 
-        stage('Build Services (creating .jar files)') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
+//        stage('Build Services (creating .jar files)') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                sh 'mvn clean package -DskipTests'
+//            }
+//        }
 
 //        stage('Upload Artifacts') {
 //            when { branch 'master' }
@@ -218,42 +218,42 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images of each service') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                script {
-                    SERVICES.split().each { service ->
-                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
-                    }
-                }
-            }
-        }
+//        stage('Build Docker Images of each service') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                script {
+//                    SERVICES.split().each { service ->
+//                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
+//                    }
+//                }
+//            }
+//        }
 
-        stage('Push Docker Images to Docker Hub') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
-                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
-                    script {
-                        SERVICES.split().each { service ->
-                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
-                        }
-                    }
-                }
-            }
-        }
+//        stage('Push Docker Images to Docker Hub') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+//                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
+//                    script {
+//                        SERVICES.split().each { service ->
+//                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
         stage('Unit Tests & Coverage') {
@@ -599,7 +599,11 @@ pipeline {
                 withAWS(credentials: 'aws-cred', region: "${AWS_REGION}") {
                     sh '''
                 export KUBECONFIG=$WORKSPACE/kubeconfig
-                aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME} --kubeconfig $KUBECONFIG
+                    aws eks update-kubeconfig \\
+                        --name ecommerce-prod \\
+                        --region us-east-1 \\
+                        --role-arn arn:aws:iam::058264169618:role/gh-ecommerce-ingesoft \\
+                        --kubeconfig $PWD/kubeconfig
                 kubectl --kubeconfig $KUBECONFIG get nodes
                 kubectl get pods -A
             '''
