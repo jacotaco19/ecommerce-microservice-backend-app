@@ -660,6 +660,73 @@ pipeline {
 //                archiveArtifacts artifacts: 'RELEASE_NOTES.md', fingerprint: true
 //            }
 //        }
+
+        stage('Generate SemVer Release & Tag') {
+            when { branch 'master' }
+            steps {
+                script {
+                    sh '''
+                        git config user.name "jacotaco19"
+                        git config user.email "jacobo.ossa@u.icesi.edu.co"
+                    '''
+
+                    // Última etiqueta
+                    def lastTag = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                    def commitMessages = sh(script: "git log ${lastTag}..HEAD --pretty=%B", returnStdout: true).trim()
+
+                    // Determinar tipo de versión
+                    def bumpType = ''
+                    if (commitMessages.contains('BREAKING CHANGE')) {
+                        bumpType = 'major'
+                    } else if (commitMessages.split('\n').any { it.startsWith('feat') }) {
+                        bumpType = 'minor'
+                    } else if (commitMessages.split('\n').any { it.startsWith('fix') || it.startsWith('chore') }) {
+                        bumpType = 'patch'
+                    } else {
+                        echo 'No version bump required'
+                    }
+
+                    if (!bumpType) {
+                        currentBuild.result = 'SUCCESS'
+                        error('No version bump required.')
+                    }
+
+                    // Calcular nueva versión SemVer
+                    def versionParts = lastTag.replace('v', '').tokenize('.').collect { it.toInteger() }
+                    switch (bumpType) {
+                        case 'major':
+                            versionParts[0] += 1; versionParts[1] = 0; versionParts[2] = 0; break
+                        case 'minor':
+                            versionParts[1] += 1; versionParts[2] = 0; break
+                        case 'patch':
+                            versionParts[2] += 1; break
+                    }
+
+                    env.NEW_VERSION = versionParts.join('.')
+                    echo "New version: ${env.NEW_VERSION}"
+
+                    // Generar Release Notes
+                    def commits = sh(script: "git log ${lastTag}..HEAD --pretty=format:'%h %s (%an)'", returnStdout: true).trim()
+                    writeFile file: 'RELEASE_NOTES.md', text: """    
+                        # Release v${env.NEW_VERSION}
+                        ## Changes since ${lastTag}
+
+                        ${commits}
+                    """
+                    archiveArtifacts artifacts: 'RELEASE_NOTES.md', fingerprint: true
+
+                    // Commit + Tag + Push usando PAT
+                    withCredentials([usernamePassword(credentialsId: 'gh-acces', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh """
+                            git add RELEASE_NOTES.md
+                            git commit -m "chore(release): v${env.NEW_VERSION}" || true
+                            git tag -a v${env.NEW_VERSION} -m "Release v${env.NEW_VERSION}"
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git main --tags
+                        """
+                    }
+                }
+            }
+        }
     }
 
     post {
