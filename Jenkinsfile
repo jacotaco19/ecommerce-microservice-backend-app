@@ -192,7 +192,7 @@ pipeline {
 
                         sh"""
                             trivy image --format template --scanners vuln \\
-                            --template "@/opt/homebrew/Cellar/trivy/0.67.2/share/trivy/templates/html.tpl" \\
+                            --template "@html" \\
                             --severity HIGH,CRITICAL \\
                             -o ${reportPath} \\
                             ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}
