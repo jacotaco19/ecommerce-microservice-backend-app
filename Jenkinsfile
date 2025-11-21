@@ -596,7 +596,7 @@ pipeline {
         stage('Configure kubeconfig') {
             when { branch 'master' }
             steps {
-                withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
+                withAWS(credentials: 'aws-cred', region: "${AWS_REGION}") {
                     sh '''
                 export KUBECONFIG=$WORKSPACE/kubeconfig
                 aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME} --kubeconfig $KUBECONFIG
