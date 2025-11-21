@@ -1,9 +1,8 @@
-    
-                        # Release v1.0.1
-                        ## Changes since v1.0.0
+# Release v1.0.1
+## Changes since v1.0.1
 
-                        2bf93c0 fixed jenkinsfile (Jacobo Ossa)
-c7ef414 fixed jenkinsfile (Jacobo Ossa)
-45001f8 fix: remove unnecesary any stuff (Jacobo Ossa)
-5ea3568 Add SemVer and Release notes in Jenkinsfile (Jacobo Ossa)
-                    
+### Chores / Misc
+- 0f0864f chore: improve style of release notes (Jacobo Ossa)
+- 72faa55 chore: improve style of release notes (Jacobo Ossa)
+- 534837a chore: improve style of release notes (Jacobo Ossa)
+
