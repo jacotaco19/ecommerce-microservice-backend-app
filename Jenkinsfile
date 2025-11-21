@@ -215,42 +215,42 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images of each service') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                script {
-                    SERVICES.split().each { service ->
-                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
-                    }
-                }
-            }
-        }
+//        stage('Build Docker Images of each service') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                script {
+//                    SERVICES.split().each { service ->
+//                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
+//                    }
+//                }
+//            }
+//        }
 
-        stage('Push Docker Images to Docker Hub') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
-                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
-                    script {
-                        SERVICES.split().each { service ->
-                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
-                        }
-                    }
-                }
-            }
-        }
+//        stage('Push Docker Images to Docker Hub') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+//                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
+//                    script {
+//                        SERVICES.split().each { service ->
+//                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
         stage('Unit Tests & Coverage') {
@@ -569,26 +569,26 @@ pipeline {
             }
         }
 
-        stage('Waiting approval for deployment') {
-            when { branch 'master' }
-            steps {
-                script {
-                    emailext(
-                            to: '$DEFAULT_RECIPIENTS',
-                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
-                            body: """\
-                        Hello dead man (daniel) and Goat Ossa,
-                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
-                        Please review the changes and approve or abort
-                        You can access the build details here:
-                        ${env.BUILD_URL}
-                        """
-                    )
-
-                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
-                }
-            }
-        }
+//        stage('Waiting approval for deployment') {
+//            when { branch 'master' }
+//            steps {
+//                script {
+//                    emailext(
+//                            to: '$DEFAULT_RECIPIENTS',
+//                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
+//                            body: """\
+//                        Hello dead man (daniel) and Goat Ossa,
+//                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
+//                        Please review the changes and approve or abort
+//                        You can access the build details here:
+//                        ${env.BUILD_URL}
+//                        """
+//                    )
+//
+//                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
+//                }
+//            }
+//        }
 
 //        stage('Authenticate to GKE') {
 //            when { branch 'master' }
@@ -754,25 +754,31 @@ pipeline {
             steps {
                 script {
                     if (env.CREATE_TAG.toBoolean()) {
-                        def releaseNotes = readFile('RELEASE_NOTES.md').replaceAll('"', '\\"')
+                        // Leer release notes completos
+                        def releaseNotes = readFile('RELEASE_NOTES.md').trim()
 
-                        withCredentials([usernamePassword(credentialsId: 'gh-acces', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
+                        // Crear JSON de request usando JsonOutput para escapar correctamente
+                        def jsonBody = groovy.json.JsonOutput.toJson([
+                                tag_name: "v${env.NEW_VERSION}",
+                                target_commitish: "master",
+                                name: "v${env.NEW_VERSION}",
+                                body: releaseNotes,
+                                draft: false,
+                                prerelease: false,
+                                generate_release_notes: false
+                        ])
+
+                        withCredentials([string(credentialsId: 'gh_create_release', variable: 'GIT_TOKEN')]) {
                             def response = httpRequest(
                                     url: 'https://api.github.com/repos/jacotaco19/ecommerce-microservice-backend-app/releases',
                                     httpMode: 'POST',
                                     customHeaders: [
-                                            [name: 'Authorization', value: "token ${GIT_TOKEN}"],
+                                            [name: 'Accept', value: 'application/vnd.github+json'],
+                                            [name: 'Authorization', value: "Bearer ${GIT_TOKEN}"],
+                                            [name: 'X-GitHub-Api-Version', value: '2022-11-28'],
                                             [name: 'Content-Type', value: 'application/json']
                                     ],
-                                    requestBody: """
-                    {
-                        "tag_name": "v${env.NEW_VERSION}",
-                        "name": "Release v${env.NEW_VERSION}",
-                        "body": "${releaseNotes}",
-                        "draft": false,
-                        "prerelease": false
-                    }
-                    """,
+                                    requestBody: jsonBody,
                                     validResponseCodes: '201'
                             )
 
@@ -784,6 +790,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
