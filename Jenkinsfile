@@ -681,97 +681,111 @@ pipeline {
                     } else if (commitMessages.split('\n').any { it.startsWith('fix') }) {
                         bumpType = 'patch'
                     } else {
-                        echo 'No version bump required'
+                        echo 'No version bump detected'
                     }
 
-                    if (!bumpType) {
-                        currentBuild.result = 'SUCCESS'
-                        error('No version bump required.')
+                    if (bumpType) {
+                        // Calcular nueva versión
+                        def versionParts = lastTag.replace('v','').tokenize('.').collect { it.toInteger() }
+                        switch (bumpType) {
+                            case 'major': versionParts[0] += 1; versionParts[1] = 0; versionParts[2] = 0; break
+                            case 'minor': versionParts[1] += 1; versionParts[2] = 0; break
+                            case 'patch': versionParts[2] += 1; break
+                        }
+                        env.NEW_VERSION = versionParts.join('.')
+                        env.CREATE_TAG = true
+                        echo "New version: ${env.NEW_VERSION}"
+                    } else {
+                        env.NEW_VERSION = lastTag.replace('v','')
+                        env.CREATE_TAG = false
+                        echo "Using current version: ${env.NEW_VERSION}"
                     }
 
-                    def versionParts = lastTag.replace('v', '').tokenize('.').collect { it.toInteger() }
-                    switch (bumpType) {
-                        case 'major':
-                            versionParts[0] += 1; versionParts[1] = 0; versionParts[2] = 0; break
-                        case 'minor':
-                            versionParts[1] += 1; versionParts[2] = 0; break
-                        case 'patch':
-                            versionParts[2] += 1; break
-                    }
-                    env.NEW_VERSION = versionParts.join('.')
-                    echo "New version: ${env.NEW_VERSION}"
-
+                    // Generar release notes
                     def commitsRaw = sh(script: "git log ${lastTag}..HEAD --pretty=format:'%h %s (%an)'", returnStdout: true).trim()
-
-                    def features = []
-                    def fixes = []
-                    def chores = []
-                    def docs = []
-                    def breaking = []
+                    def features = [], fixes = [], chores = [], docs = [], breaking = []
 
                     commitsRaw.split('\n').each { line ->
                         def lower = line.toLowerCase()
-                        if (lower.contains('breaking change')) {
-                            breaking << line
-                        } else if (lower.startsWith('feat')) {
-                            features << line
-                        } else if (lower.startsWith('fix')) {
-                            fixes << line
-                        } else if (lower.startsWith('chore')) {
-                            chores << line
-                        } else if (lower.startsWith('docs')) {
-                            docs << line
-                        } else {
-                            chores << line
-                        }
+                        if (lower.contains('breaking change')) { breaking << line }
+                        else if (lower.startsWith('feat')) { features << line }
+                        else if (lower.startsWith('fix')) { fixes << line }
+                        else if (lower.startsWith('chore')) { chores << line }
+                        else if (lower.startsWith('docs')) { docs << line }
+                        else { chores << line }
                     }
 
                     def releaseNotes = "# Release v${env.NEW_VERSION}\n"
                     releaseNotes += "## Changes since ${lastTag}\n\n"
 
-                    if (breaking) {
-                        releaseNotes += "### BREAKING CHANGES\n"
-                        breaking.each { releaseNotes += "- ${it}\n" }
-                        releaseNotes += "\n"
-                    }
-                    if (features) {
-                        releaseNotes += "### Features\n"
-                        features.each { releaseNotes += "- ${it}\n" }
-                        releaseNotes += "\n"
-                    }
-                    if (fixes) {
-                        releaseNotes += "### Bug Fixes\n"
-                        fixes.each { releaseNotes += "- ${it}\n" }
-                        releaseNotes += "\n"
-                    }
-                    if (docs) {
-                        releaseNotes += "### Documentation\n"
-                        docs.each { releaseNotes += "- ${it}\n" }
-                        releaseNotes += "\n"
-                    }
-                    if (chores) {
-                        releaseNotes += "### Chores / Misc\n"
-                        chores.each { releaseNotes += "- ${it}\n" }
-                        releaseNotes += "\n"
-                    }
+                    if (breaking) { releaseNotes += "### BREAKING CHANGES\n" + breaking.collect { "- ${it}" }.join('\n') + "\n\n" }
+                    if (features) { releaseNotes += "### Features\n" + features.collect { "- ${it}" }.join('\n') + "\n\n" }
+                    if (fixes) { releaseNotes += "### Bug Fixes\n" + fixes.collect { "- ${it}" }.join('\n') + "\n\n" }
+                    if (docs) { releaseNotes += "### Documentation\n" + docs.collect { "- ${it}" }.join('\n') + "\n\n" }
+                    if (chores) { releaseNotes += "### Chores / Misc\n" + chores.collect { "- ${it}" }.join('\n') + "\n\n" }
 
                     writeFile file: 'RELEASE_NOTES.md', text: releaseNotes
                     archiveArtifacts artifacts: 'RELEASE_NOTES.md', fingerprint: true
 
                     withCredentials([usernamePassword(credentialsId: 'gh-acces', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh """
-                            git add RELEASE_NOTES.md
-                            git commit -m "chore(release): v${env.NEW_VERSION}" || true
-                            
-                            git tag -d v${env.NEW_VERSION} || true
+                    git add RELEASE_NOTES.md
+                    git commit -m "chore(release): v${env.NEW_VERSION}" || true
+                """
 
-                            git tag -a v${env.NEW_VERSION} -m "Release v${env.NEW_VERSION}"
-                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git ${env.BRANCH_NAME} --tags
-                        """
+                        if (env.CREATE_TAG.toBoolean()) {
+                            sh """
+                        git tag -d v${env.NEW_VERSION} || true
+                        git tag -a v${env.NEW_VERSION} -m "Release v${env.NEW_VERSION}"
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git ${env.BRANCH_NAME} --tags
+                    """
+                        } else {
+                            sh """
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git ${env.BRANCH_NAME}
+                    """
+                        }
                     }
                 }
             }
         }
+
+        stage('Create GitHub Release') {
+            when { branch 'master' }
+            steps {
+                script {
+                    if (env.CREATE_TAG.toBoolean()) {
+                        def releaseNotes = readFile('RELEASE_NOTES.md').replaceAll('"', '\\"')
+
+                        withCredentials([usernamePassword(credentialsId: 'gh-acces', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
+                            def response = httpRequest(
+                                    url: 'https://api.github.com/repos/jacotaco19/ecommerce-microservice-backend-app/releases',
+                                    httpMode: 'POST',
+                                    customHeaders: [
+                                            [name: 'Authorization', value: "token ${GIT_TOKEN}"],
+                                            [name: 'Content-Type', value: 'application/json']
+                                    ],
+                                    requestBody: """
+                    {
+                        "tag_name": "v${env.NEW_VERSION}",
+                        "name": "Release v${env.NEW_VERSION}",
+                        "body": "${releaseNotes}",
+                        "draft": false,
+                        "prerelease": false
+                    }
+                    """,
+                                    validResponseCodes: '201'
+                            )
+
+                            echo "Release creation response: ${response.content}"
+                        }
+                    } else {
+                        echo "No new version bump. Skipping GitHub Release creation."
+                    }
+                }
+            }
+        }
+
+
 
     }
 
