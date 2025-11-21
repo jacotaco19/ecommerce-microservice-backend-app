@@ -1,14 +1,14 @@
 package com.e2e.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpMethod.POST;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.http.HttpMethod.POST;
 
 @Component
 public class TestRestFacade {
@@ -46,4 +46,3 @@ public class TestRestFacade {
         return response;
     }
 }
-

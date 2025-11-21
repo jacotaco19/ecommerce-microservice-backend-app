@@ -1,12 +1,12 @@
+FROM eclipse-temurin:11-jre AS runtime
 
-FROM eclipse-temurin:11-jdk
-#ARG PROJECT_VERSION=0.1.0
-RUN mkdir -p /home/app
-WORKDIR /home/app
-#ENV SPRING_PROFILES_ACTIVE dev
-#COPY user-service/ .
+ARG SPRING_PROFILES_ACTIVE=dev
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
+WORKDIR /app
+
 COPY target/user-service-v0.1.0.jar user-service.jar
+
 EXPOSE 8700
-ENTRYPOINT ["java", "-jar", "user-service.jar"]
 
-
+ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "user-service.jar"]

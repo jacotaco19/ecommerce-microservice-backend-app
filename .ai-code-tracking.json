@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "records": [
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/favourite/FavouriteServiceE2ETest.java",
+      "timestamp": 1763689668425,
+      "startOffset": 1197,
+      "endOffset": 2002,
+      "codeContent": "//    @Test\n//    void shoulgGetFavouriteById() {\n//        String userId \u003d \"1\";\n//        String productId \u003d \"2\";\n//        LocalDateTime likeDateTime \u003d LocalDateTime.of(2025, 5, 25, 7, 31, 51, 559551000);\n//        String likeDate \u003d likeDateTime.format(DateTimeFormatter.ofPattern(EXPECTED_BACKEND_DATE_TIME_FORMAT));\n//        ResponseEntity\u003cString\u003e response \u003d restFacade.get(\n//                favouriteServiceUrl + \"/favourite-service/api/favourites/\" + userId + \"/\" + productId + \"/\" + likeDate,\n//                String.class);\n//        System.out.println(\"Response: \" + response.getBody());\n//        System.out.println(\"Status Code: \" + response.getStatusCode());\n//        assertTrue(response.getStatusCode().is2xxSuccessful(), \"Unexpected status code: \" + response.getStatusCode());\n//    }\n\n}",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 15
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/favourite/FavouriteServiceE2ETest.java",
+      "timestamp": 1763689670300,
+      "startOffset": 1197,
+      "endOffset": 2002,
+      "codeContent": "//    @Test\n//    void shoulgGetFavouriteById() {\n//        String userId \u003d \"1\";\n//        String productId \u003d \"2\";\n//        LocalDateTime likeDateTime \u003d LocalDateTime.of(2025, 5, 25, 7, 31, 51, 559551000);\n//        String likeDate \u003d likeDateTime.format(DateTimeFormatter.ofPattern(EXPECTED_BACKEND_DATE_TIME_FORMAT));\n//        ResponseEntity\u003cString\u003e response \u003d restFacade.get(\n//                favouriteServiceUrl + \"/favourite-service/api/favourites/\" + userId + \"/\" + productId + \"/\" + likeDate,\n//                String.class);\n//        System.out.println(\"Response: \" + response.getBody());\n//        System.out.println(\"Status Code: \" + response.getStatusCode());\n//        assertTrue(response.getStatusCode().is2xxSuccessful(), \"Unexpected status code: \" + response.getStatusCode());\n//    }\n\n}",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 15
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/favourite/FavouriteServiceE2ETest.java",
+      "timestamp": 1763689671645,
+      "startOffset": 1197,
+      "endOffset": 2002,
+      "codeContent": "//    @Test\n//    void shoulgGetFavouriteById() {\n//        String userId \u003d \"1\";\n//        String productId \u003d \"2\";\n//        LocalDateTime likeDateTime \u003d LocalDateTime.of(2025, 5, 25, 7, 31, 51, 559551000);\n//        String likeDate \u003d likeDateTime.format(DateTimeFormatter.ofPattern(EXPECTED_BACKEND_DATE_TIME_FORMAT));\n//        ResponseEntity\u003cString\u003e response \u003d restFacade.get(\n//                favouriteServiceUrl + \"/favourite-service/api/favourites/\" + userId + \"/\" + productId + \"/\" + likeDate,\n//                String.class);\n//        System.out.println(\"Response: \" + response.getBody());\n//        System.out.println(\"Status Code: \" + response.getStatusCode());\n//        assertTrue(response.getStatusCode().is2xxSuccessful(), \"Unexpected status code: \" + response.getStatusCode());\n//    }\n\n}",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 15
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/favourite/FavouriteServiceE2ETest.java",
+      "timestamp": 1763689674516,
+      "startOffset": 1197,
+      "endOffset": 2002,
+      "codeContent": "//    @Test\n//    void shoulgGetFavouriteById() {\n//        String userId \u003d \"1\";\n//        String productId \u003d \"2\";\n//        LocalDateTime likeDateTime \u003d LocalDateTime.of(2025, 5, 25, 7, 31, 51, 559551000);\n//        String likeDate \u003d likeDateTime.format(DateTimeFormatter.ofPattern(EXPECTED_BACKEND_DATE_TIME_FORMAT));\n//        ResponseEntity\u003cString\u003e response \u003d restFacade.get(\n//                favouriteServiceUrl + \"/favourite-service/api/favourites/\" + userId + \"/\" + productId + \"/\" + likeDate,\n//                String.class);\n//        System.out.println(\"Response: \" + response.getBody());\n//        System.out.println(\"Status Code: \" + response.getStatusCode());\n//        assertTrue(response.getStatusCode().is2xxSuccessful(), \"Unexpected status code: \" + response.getStatusCode());\n//    }\n\n}",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 15
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/product/ProductServiceE2ETest.java",
+      "timestamp": 1763689736668,
+      "startOffset": 355,
+      "endOffset": 1381,
+      "codeContent": "boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.ResponseEntity;\n\nimport static org.awaitility.Awaitility.await;\nimport static org.testcontainers.shaded.org.awaitility.Durations.FIVE_SECONDS;\n\n\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.List;\nimport java.util.Map;\n@SpringBootTest(classes \u003d E2ESuite.class, webEnvironment \u003d SpringBootTest.WebEnvironment.NONE)\npublic class ProductServiceE2ETest extends E2ESuite {\n\n    @Autowired\n    private TestRestFacade restFacade;\n\n    @Value(\"${product.service.url}\")\n    private String productServiceUrl;\n\n\n    @Test\n    void shouldGetAllProducts() {\n        ResponseEntity\u003cString\u003e response \u003d restFacade.get(productServiceUrl + \"/product-service/api/categories\", String.class);\n        System.out.println(\"Response: \" + response.getBody());\n        System.out.println(\"Status Code: \" + response.getStatusCode());\n        assertTrue(response.getStatusCode().is2xxSuccessful(), \"Unexpected status code: \" + response.getStatusCode());\n    }\n}",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 29
+    }
+  ],
+  "toolStats": {
+    "AI Assistant": {
+      "usageCount": 5,
+      "totalLines": 89
+    }
+  }
+}

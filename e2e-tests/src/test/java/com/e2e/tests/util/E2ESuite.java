@@ -1,6 +1,5 @@
 package com.e2e.tests.util;
 
-import com.e2e.tests.config.TestClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContextInitializer;
@@ -14,6 +13,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.lifecycle.Startables;
+import com.e2e.tests.config.TestClientConfig;
 
 import java.time.Duration;
 import java.util.Map;
@@ -89,7 +89,7 @@ public class E2ESuite {
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
                     .withEnv("EUREKA_INSTANCE", "product-service-container")
                     .waitingFor(Wait.forHttp("/product-service/actuator/health").forStatusCode(200))
-                            .withStartupTimeout(Duration.ofMinutes(3));
+                    .withStartupTimeout(Duration.ofMinutes(3));
 
             orderServiceContainer = new GenericContainer<>("jacoboossag/order-service:stage")
                     .withNetwork(network)
@@ -101,7 +101,7 @@ public class E2ESuite {
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
                     .withEnv("EUREKA_INSTANCE", "order-service-container")
                     .waitingFor(Wait.forHttp("/order-service/actuator/health").forStatusCode(200))
-                            .withStartupTimeout(Duration.ofMinutes(3));
+                    .withStartupTimeout(Duration.ofMinutes(3));
 
             paymentServiceContainer = new GenericContainer<>("jacoboossag/payment-service:stage")
                     .withNetwork(network)
@@ -113,7 +113,7 @@ public class E2ESuite {
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
                     .withEnv("EUREKA_INSTANCE", "payment-service-container")
                     .waitingFor(Wait.forHttp("/payment-service/actuator/health").forStatusCode(200))
-                            .withStartupTimeout(Duration.ofMinutes(3));
+                    .withStartupTimeout(Duration.ofMinutes(3));
 
             favouriteServiceContainer = new GenericContainer<>("jacoboossag/favourite-service:stage")
                     .withNetwork(network)
@@ -125,7 +125,7 @@ public class E2ESuite {
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
                     .withEnv("EUREKA_INSTANCE", "favourite-service-container")
                     .waitingFor(Wait.forHttp("/favourite-service/actuator/health").forStatusCode(200))
-                            .withStartupTimeout(Duration.ofMinutes(3));
+                    .withStartupTimeout(Duration.ofMinutes(3));
 
             Startables.deepStart(Stream.of(zipkinContainer, serviceDiscoveryContainer)).join();
             Startables.deepStart(Stream.of(cloudConfigContainer)).join();
@@ -152,6 +152,3 @@ public class E2ESuite {
         }
     }
 }
-
-
-
