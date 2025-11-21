@@ -721,7 +721,7 @@ pipeline {
                             git add RELEASE_NOTES.md
                             git commit -m "chore(release): v${env.NEW_VERSION}" || true
                             git tag -a v${env.NEW_VERSION} -m "Release v${env.NEW_VERSION}"
-                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git main --tags
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/jacotaco19/ecommerce-microservice-backend-app.git ${env.BRANCH_NAME} --tags
                         """
                     }
                 }
