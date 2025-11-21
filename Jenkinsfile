@@ -10,7 +10,10 @@ pipeline {
         DOCKERHUB_USER = 'jacoboossag'
         DOCKER_CREDENTIALS_ID = 'docker_pwd'
         SERVICES = 'api-gateway cloud-config favourite-service order-service payment-service product-service proxy-client service-discovery shipping-service user-service locust'
-        K8S_NAMESPACE = 'default'
+        K8S_NAMESPACE = 'microservices'
+
+        AWS_REGION = 'us-east-1'
+        CLUSTER_NAME = 'ecommerce-prod'
     }
 
     stages {
@@ -589,6 +592,32 @@ pipeline {
                 }
             }
         }
+
+        stage('Configure kubeconfig') {
+            when { branch 'master' }
+            steps {
+                withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
+                    sh '''
+                export KUBECONFIG=$WORKSPACE/kubeconfig
+                aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME} --kubeconfig $KUBECONFIG
+                kubectl --kubeconfig $KUBECONFIG get nodes
+                kubectl get pods -A
+            '''
+                }
+            }
+        }
+
+        stage('Create Namespace') {
+            when { branch 'master' }
+            steps {
+                sh '''
+            export KUBECONFIG=$WORKSPACE/kubeconfig
+            kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
+        '''
+            }
+        }
+
+
 
 //        stage('Authenticate to GKE') {
 //            when { branch 'master' }
