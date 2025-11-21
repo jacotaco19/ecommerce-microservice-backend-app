@@ -678,7 +678,7 @@ pipeline {
                         bumpType = 'major'
                     } else if (commitMessages.split('\n').any { it.startsWith('feat') }) {
                         bumpType = 'minor'
-                    } else if (commitMessages.split('\n').any { it.startsWith('fix') || it.startsWith('chore') }) {
+                    } else if (commitMessages.split('\n').any { it.startsWith('fix') }) {
                         bumpType = 'patch'
                     } else {
                         echo 'No version bump required'
@@ -689,7 +689,6 @@ pipeline {
                         error('No version bump required.')
                     }
 
-                    // Calcular nueva versión SemVer
                     def versionParts = lastTag.replace('v', '').tokenize('.').collect { it.toInteger() }
                     switch (bumpType) {
                         case 'major':
