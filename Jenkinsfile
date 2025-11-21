@@ -187,6 +187,10 @@ pipeline {
 
                     sh "mkdir -p trivy-reports"
 
+                    sh '''
+                        curl -L https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o html.tpl
+                    '''
+
                     services.each { service ->
                         def reportPath = "trivy-reports/${service}.html"
 
