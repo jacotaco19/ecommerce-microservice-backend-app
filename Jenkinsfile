@@ -215,42 +215,42 @@ pipeline {
             }
         }
 
-//        stage('Build Docker Images of each service') {
-//            when {
-//                anyOf {
-//                    branch 'dev'
-//                    branch 'stage'
-//                    branch 'master'
-//                }
-//            }
-//            steps {
-//                script {
-//                    SERVICES.split().each { service ->
-//                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
-//                    }
-//                }
-//            }
-//        }
+        stage('Build Docker Images of each service') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'stage'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    SERVICES.split().each { service ->
+                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
+                    }
+                }
+            }
+        }
 
-//        stage('Push Docker Images to Docker Hub') {
-//            when {
-//                anyOf {
-//                    branch 'dev'
-//                    branch 'stage'
-//                    branch 'master'
-//                }
-//            }
-//            steps {
-//                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
-//                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
-//                    script {
-//                        SERVICES.split().each { service ->
-//                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        stage('Push Docker Images to Docker Hub') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'stage'
+                    branch 'master'
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
+                    script {
+                        SERVICES.split().each { service ->
+                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
+                        }
+                    }
+                }
+            }
+        }
 
 
         stage('Unit Tests & Coverage') {
@@ -569,26 +569,26 @@ pipeline {
             }
         }
 
-//        stage('Waiting approval for deployment') {
-//            when { branch 'master' }
-//            steps {
-//                script {
-//                    emailext(
-//                            to: '$DEFAULT_RECIPIENTS',
-//                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
-//                            body: """\
-//                        Hello dead man (daniel) and Goat Ossa,
-//                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
-//                        Please review the changes and approve or abort
-//                        You can access the build details here:
-//                        ${env.BUILD_URL}
-//                        """
-//                    )
-//
-//                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
-//                }
-//            }
-//        }
+        stage('Waiting approval for deployment') {
+            when { branch 'master' }
+            steps {
+                script {
+                    emailext(
+                            to: '$DEFAULT_RECIPIENTS',
+                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
+                            body: """\
+                        Hello dead man (daniel) and Goat Ossa,
+                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
+                        Please review the changes and approve or abort
+                        You can access the build details here:
+                        ${env.BUILD_URL}
+                        """
+                    )
+
+                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
+                }
+            }
+        }
 
 //        stage('Authenticate to GKE') {
 //            when { branch 'master' }
@@ -646,18 +646,6 @@ pipeline {
 //                        sh "kubectl rollout status deployment/${svc} -n ${K8S_NAMESPACE} --timeout=200s"
 //                    }
 //                }
-//            }
-//        }
-
-//        stage('Generate release notes') {
-//            when {
-//                branch 'master'
-//            }
-//            steps {
-//                sh '''
-//                    /opt/homebrew/bin/convco changelog > RELEASE_NOTES.md
-//                '''
-//                archiveArtifacts artifacts: 'RELEASE_NOTES.md', fingerprint: true
 //            }
 //        }
 
