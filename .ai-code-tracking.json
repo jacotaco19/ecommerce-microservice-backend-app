@@ -55,12 +55,67 @@
       "aiTool": "AI Assistant",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 29
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/util/E2ESuite.java",
+      "timestamp": 1763693759760,
+      "startOffset": 2297,
+      "endOffset": 2844,
+      "codeContent": "serviceDiscoveryContainer \u003d new GenericContainer\u003c\u003e(\"selimhorri/service-discovery-ecommerce-boot:0.1.0\")\n        .withNetwork(network)\n        .withNetworkAliases(\"service-discovery-container\")\n        .withExposedPorts(8761)\n        .withEnv(\"SPRING_PROFILES_ACTIVE\", \"stage\")\n        .withEnv(\"SPRING_ZIPKIN_BASE_URL\", \"http://zipkin-container:9411\")\n        .waitingFor(\n            Wait.forHttp(\"/actuator/health\")\n                .forStatusCode(200)\n                .withStartupTimeout(Duration.ofMinutes(5)) // más tiempo si tarda\n        );\n",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 12
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/util/E2ESuite.java",
+      "timestamp": 1763693759781,
+      "startOffset": 2831,
+      "endOffset": 2851,
+      "codeContent": "                    ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/util/E2ESuite.java",
+      "timestamp": 1763693759781,
+      "startOffset": 2887,
+      "endOffset": 2907,
+      "codeContent": "                    ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/util/E2ESuite.java",
+      "timestamp": 1763693762032,
+      "startOffset": 2831,
+      "endOffset": 2851,
+      "codeContent": "                    ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/Users/jacoboossag/proyecto-final-ingesoft/ecommerce-microservice-backend-app/e2e-tests/src/test/java/com/e2e/tests/util/E2ESuite.java",
+      "timestamp": 1763693762033,
+      "startOffset": 2887,
+      "endOffset": 2907,
+      "codeContent": "                    ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
     }
   ],
   "toolStats": {
     "AI Assistant": {
-      "usageCount": 5,
-      "totalLines": 89
+      "usageCount": 10,
+      "totalLines": 105
     }
   }
 }

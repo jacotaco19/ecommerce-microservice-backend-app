@@ -49,29 +49,34 @@ public class E2ESuite {
                     .withExposedPorts(9411)
                     .waitingFor(Wait.forHttp("/").forStatusCode(200));
 
-            serviceDiscoveryContainer = new GenericContainer<>("selimhorri/service-discovery-ecommerce-boot:0.1.0")
+            serviceDiscoveryContainer = new GenericContainer<>("jacoboossag/service-discovery:dev")
                     .withNetwork(network)
                     .withNetworkAliases("service-discovery-container")
                     .withExposedPorts(8761)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
-                    .waitingFor(Wait.forHttp("/actuator/health").forStatusCode(200));
+                    .waitingFor(
+                            Wait.forHttp("/actuator/health")
+                                    .forStatusCode(200)
+                                    .withStartupTimeout(Duration.ofMinutes(5))
+                    );
 
-            cloudConfigContainer = new GenericContainer<>("jacoboossag/cloud-config:stage")
+
+            cloudConfigContainer = new GenericContainer<>("jacoboossag/cloud-config:dev")
                     .withNetwork(network)
                     .withNetworkAliases("cloud-config-container")
                     .withExposedPorts(9296)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("EUREKA_CLIENT_SERVICEURL_DEFAULTZONE", "http://service-discovery-container:8761/eureka/")
                     .withEnv("EUREKA_INSTANCE", "cloud-config-container")
                     .waitingFor(Wait.forHttp("/actuator/health").forStatusCode(200));
 
-            userServiceContainer = new GenericContainer<>("jacoboossag/user-service:stage")
+            userServiceContainer = new GenericContainer<>("jacoboossag/user-service:dev")
                     .withNetwork(network)
                     .withNetworkAliases("user-service-container")
                     .withExposedPorts(8700)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("SPRING_CONFIG_IMPORT", "optional:configserver:http://cloud-config-container:9296")
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
@@ -79,11 +84,11 @@ public class E2ESuite {
                     .waitingFor(Wait.forHttp("/user-service/actuator/health").forStatusCode(200))
                     .withStartupTimeout(Duration.ofMinutes(3));
 
-            productServiceContainer = new GenericContainer<>("jacoboossag/product-service:stage")
+            productServiceContainer = new GenericContainer<>("jacoboossag/product-service:dev")
                     .withNetwork(network)
                     .withNetworkAliases("product-service-container")
                     .withExposedPorts(8500)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("SPRING_CONFIG_IMPORT", "optional:configserver:http://cloud-config-container:9296")
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
@@ -91,11 +96,11 @@ public class E2ESuite {
                     .waitingFor(Wait.forHttp("/product-service/actuator/health").forStatusCode(200))
                     .withStartupTimeout(Duration.ofMinutes(3));
 
-            orderServiceContainer = new GenericContainer<>("jacoboossag/order-service:stage")
+            orderServiceContainer = new GenericContainer<>("jacoboossag/order-service:dev")
                     .withNetwork(network)
                     .withNetworkAliases("order-service-container")
                     .withExposedPorts(8300)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("SPRING_CONFIG_IMPORT", "optional:configserver:http://cloud-config-container:9296")
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
@@ -103,11 +108,11 @@ public class E2ESuite {
                     .waitingFor(Wait.forHttp("/order-service/actuator/health").forStatusCode(200))
                     .withStartupTimeout(Duration.ofMinutes(3));
 
-            paymentServiceContainer = new GenericContainer<>("jacoboossag/payment-service:stage")
+            paymentServiceContainer = new GenericContainer<>("jacoboossag/payment-service:dev")
                     .withNetwork(network)
                     .withNetworkAliases("payment-service-container")
                     .withExposedPorts(8400)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("SPRING_CONFIG_IMPORT", "optional:configserver:http://cloud-config-container:9296")
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
@@ -115,11 +120,11 @@ public class E2ESuite {
                     .waitingFor(Wait.forHttp("/payment-service/actuator/health").forStatusCode(200))
                     .withStartupTimeout(Duration.ofMinutes(3));
 
-            favouriteServiceContainer = new GenericContainer<>("jacoboossag/favourite-service:stage")
+            favouriteServiceContainer = new GenericContainer<>("jacoboossag/favourite-service:dev")
                     .withNetwork(network)
                     .withNetworkAliases("favourite-service-container")
                     .withExposedPorts(8800)
-                    .withEnv("SPRING_PROFILES_ACTIVE", "stage")
+                    .withEnv("SPRING_PROFILES_ACTIVE", "dev")
                     .withEnv("SPRING_ZIPKIN_BASE_URL", "http://zipkin-container:9411")
                     .withEnv("SPRING_CONFIG_IMPORT", "optional:configserver:http://cloud-config-container:9296")
                     .withEnv("EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE", "http://service-discovery-container:8761/eureka")
