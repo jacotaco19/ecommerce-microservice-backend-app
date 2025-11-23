@@ -675,10 +675,18 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-cred', region: 'us-east-1') {
                     script {
-                        sh '''export KUBECONFIG=$WORKSPACE/kubeconfig'''
+                        sh '''
+                    export KUBECONFIG=$WORKSPACE/kubeconfig
+
+                    aws eks update-kubeconfig \
+                        --name ecommerce-prod \
+                        --region us-east-1 \
+                        --role-arn arn:aws:iam::058264169618:role/gh-ecommerce-ingesoft \
+                        --kubeconfig $KUBECONFIG
+                '''
 
                         def appServices = [
-                                'order-service','product-service', 'user-service'
+                                'order-service','product-service','user-service'
                         ]
 
                         for (svc in appServices) {
@@ -693,6 +701,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Generate SemVer Release & Tag') {
