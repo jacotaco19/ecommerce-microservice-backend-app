@@ -694,7 +694,7 @@ pipeline {
 
                             sh "kubectl apply -f k8s/${svc}/ -n ${K8S_NAMESPACE}"
                             sh "kubectl set image deployment/${svc} ${svc}=${image} -n ${K8S_NAMESPACE}"
-                            sh "kubectl set env deployment/${svc} SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} -n ${K8S_NAMESPACE}"
+                            sh "kubectl set env deployment/${svc} SPRING_PROFILES_ACTIVE=dev -n ${K8S_NAMESPACE}"
                             sh "kubectl rollout status deployment/${svc} -n ${K8S_NAMESPACE} --timeout=200s"
                         }
                     }
