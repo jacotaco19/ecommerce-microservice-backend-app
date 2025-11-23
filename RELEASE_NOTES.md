@@ -1,10 +1,11 @@
-# Release v1.3.0
-## Changes since v1.2.0
+# Release v2.0.0
+## Changes since v1.3.0
+
+### BREAKING CHANGES
+- 17d2247 BREAKING CHANGE: add deploy into EKS cluster (Jacobo Ossa)
 
 ### Chores / Misc
-- 877060b feat: add connection with EKS (Jacobo Ossa)
-- 5bcd5bc feat: add connection with EKS (Jacobo Ossa)
-- d7fc9f3 feat: add connection with EKS (Jacobo Ossa)
-- c6dc7db feat: add connection with EKS (Jacobo Ossa)
-- fbe91d5 chore: improve style of Jenkinsfile (Jacobo Ossa)
+- 662b5e2 pipeline works (Jacobo Ossa)
+- 19acf94 pipeline works (Jacobo Ossa)
+- a816869 pipeline works (Jacobo Ossa)
 
