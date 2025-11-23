@@ -4,6 +4,7 @@ metadata:
   name: sonatype-registry
   labels:
     app: sonatype-registry
+  namespace: artifact
 spec:
   replicas: 1
   selector:
@@ -15,13 +16,13 @@ spec:
         app: sonatype-registry
     spec:
       securityContext:
-        fsGroup: 200  # importante para que el volumen montado sea accesible
+        fsGroup: 200
       volumes:
         - name: registry-vol
           persistentVolumeClaim:
             claimName: sonatype-registry-data
       containers:
-        - image: sonatype/nexus3
+        - image: sonatype/nexus3:3.68.1
           name: nexus
           ports:
             - containerPort: 8081

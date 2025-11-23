@@ -30,6 +30,10 @@ management:
     health:
       show-details: always
 
+eureka:
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+    prefer-ip-address: false
 
 
 

@@ -59,60 +59,60 @@ pipeline {
             }
         }
 
-//        stage('Build Services (creating .jar files)') {
-//            when {
-//                anyOf {
-//                    branch 'dev'
-//                    branch 'stage'
-//                    branch 'master'
-//                }
-//            }
-//            steps {
-//                sh 'mvn clean package -DskipTests'
-//            }
-//        }
+        stage('Build Services (creating .jar files)') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'stage'
+                    branch 'master'
+                }
+            }
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
 
-//        stage('Upload Artifacts') {
-//            when { branch 'master' }
-//            steps {
-//                script {
-//                    def services = [
-//                            'api-gateway',
-//                            'cloud-config',
-//                            'favourite-service',
-//                            'order-service',
-//                            'payment-service',
-//                            'product-service',
-//                            'proxy-client',
-//                            'service-discovery',
-//                            'shipping-service',
-//                            'user-service'
-//                    ]
-//
-//                    def version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"
-//
-//                    def artifacts = services.collect { service ->
-//                        [
-//                                artifactId: service,
-//                                classifier: '',
-//                                file: "${service}/target/${service}-v0.1.0.jar",
-//                                type: 'jar'
-//                        ]
-//                    }
-//
-//                    nexusArtifactUploader(
-//                            nexusVersion: 'nexus3',
-//                            protocol: 'http',
-//                            nexusUrl: '34.63.215.40:8081',
-//                            groupId: 'com.ecommerce',
-//                            version: version,
-//                            repository: 'ecommerce-app',
-//                            credentialsId: 'nexusLogin',
-//                            artifacts: artifacts
-//                    )
-//                }
-//            }
-//        }
+        stage('Upload Artifacts') {
+            when { branch 'master' }
+            steps {
+                script {
+                    def services = [
+                            'api-gateway',
+                            'cloud-config',
+                            'favourite-service',
+                            'order-service',
+                            'payment-service',
+                            'product-service',
+                            'proxy-client',
+                            'service-discovery',
+                            'shipping-service',
+                            'user-service'
+                    ]
+
+                    def version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"
+
+                    def artifacts = services.collect { service ->
+                        [
+                                artifactId: service,
+                                classifier: '',
+                                file: "${service}/target/${service}-v0.1.0.jar",
+                                type: 'jar'
+                        ]
+                    }
+
+                    nexusArtifactUploader(
+                            nexusVersion: 'nexus3',
+                            protocol: 'http',
+                            nexusUrl: '34.63.215.40:8081',
+                            groupId: 'com.ecommerce',
+                            version: version,
+                            repository: 'ecommerce-app',
+                            credentialsId: 'nexusLogin',
+                            artifacts: artifacts
+                    )
+                }
+            }
+        }
 
         stage('Run SonarQube Analysis') {
             when { branch 'stage' }
@@ -218,42 +218,42 @@ pipeline {
             }
         }
 
-//        stage('Build Docker Images of each service') {
-//            when {
-//                anyOf {
-//                    branch 'dev'
-//                    branch 'stage'
-//                    branch 'master'
-//                }
-//            }
-//            steps {
-//                script {
-//                    SERVICES.split().each { service ->
-//                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
-//                    }
-//                }
-//            }
-//        }
+        stage('Build Docker Images of each service') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'stage'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    SERVICES.split().each { service ->
+                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
+                    }
+                }
+            }
+        }
 
-//        stage('Push Docker Images to Docker Hub') {
-//            when {
-//                anyOf {
-//                    branch 'dev'
-//                    branch 'stage'
-//                    branch 'master'
-//                }
-//            }
-//            steps {
-//                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
-//                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
-//                    script {
-//                        SERVICES.split().each { service ->
-//                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        stage('Push Docker Images to Docker Hub') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'stage'
+                    branch 'master'
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
+                    script {
+                        SERVICES.split().each { service ->
+                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
+                        }
+                    }
+                }
+            }
+        }
 
 
         stage('Unit Tests & Coverage') {
