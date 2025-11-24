@@ -1,11 +1,15 @@
-# Release v2.0.0
-## Changes since v1.3.0
-
-### BREAKING CHANGES
-- 17d2247 BREAKING CHANGE: add deploy into EKS cluster (Jacobo Ossa)
+# Release v2.1.0
+## Changes since v2.0.0
 
 ### Chores / Misc
-- 662b5e2 pipeline works (Jacobo Ossa)
-- 19acf94 pipeline works (Jacobo Ossa)
-- a816869 pipeline works (Jacobo Ossa)
+- f607fcf feat: add deployment to EKS cluster (Jacobo Ossa)
+- d3f50a4 feat: add deployment to EKS cluster (Jacobo Ossa)
+- 0664393 feat: add deployment to EKS cluster (Jacobo Ossa)
+- aaa4e53 feat: add deployment to EKS cluster (Jacobo Ossa)
+- 379d34d feat: add deployment to EKS cluster (Jacobo Ossa)
+- e0c3de2 feat: add deployment to EKS cluster (Jacobo Ossa)
+- 8d78898 feat: add deployment to EKS cluster (Jacobo Ossa)
+- e21541c feat: add deployment to EKS cluster (Jacobo Ossa)
+- 55ef347 feat: add deployment to EKS cluster (Jacobo Ossa)
+- 6305683 feat: add deployment to EKS cluster (Jacobo Ossa)
 
