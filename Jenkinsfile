@@ -89,7 +89,7 @@ pipeline {
                             'user-service'
                     ]
 
-                    def version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"
+                    def version = "${env.BUILD_ID}-${new Date().format('yyyyMMdd-HHmmss')}"
 
                     def artifacts = services.collect { service ->
                         [
