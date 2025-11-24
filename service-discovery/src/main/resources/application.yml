@@ -31,9 +31,12 @@ management:
       show-details: always
 
 eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
   instance:
-    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
-    prefer-ip-address: false
+    prefer-ip-address: true
+
 
 
 
