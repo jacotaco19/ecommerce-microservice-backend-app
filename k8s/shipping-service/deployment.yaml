@@ -23,52 +23,48 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
+            - name: SPRING_APPLICATION_NAME
+              value: "SHIPPING-SERVICE"
+            - name: SERVER_PORT
+              value: "8600"
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: "/shipping-service"
 
+            # Servicios externos
             - name: SPRING_ZIPKIN_BASE_URL
               value: "http://zipkin-service:9411"
-
             - name: SPRING_CONFIG_IMPORT
               value: "optional:configserver:http://cloud-config:9296"
 
+            # Eureka - Variables correctas según Cloud Config
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://service-discovery:8761/eureka/"
-
-            # Nombre del servicio en Eureka (USAR ESTE)
-            - name: SPRING_APPLICATION_NAME
-              value: "SHIPPING-SERVICE"
-
-            # Registrar con IP del Pod
-            - name: EUREKA_INSTANCE_IP_ADDRESS
+            - name: EUREKA_INSTANCE_HOSTNAME
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-
             - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
               value: "true"
 
-            - name: SERVER_PORT
-              value: "8600"
-
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /shipping-service/actuator/health/liveness
               port: 8600
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
             failureThreshold: 3
-
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /shipping-service/actuator/health/readiness
               port: 8600
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 5
             failureThreshold: 3
-
+            timeoutSeconds: 3
           volumeMounts:
             - name: common-config-volume
               mountPath: /app/config
-
       volumes:
         - name: common-config-volume
           configMap:

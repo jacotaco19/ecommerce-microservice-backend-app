@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/security-groups: sg-0ec4ed6a99581ed2e
+    alb.ingress.kubernetes.io/security-groups: sg-0546cdc2c2916d649
 spec:
   rules:
     - http:

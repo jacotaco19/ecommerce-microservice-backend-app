@@ -23,51 +23,45 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
-
-            - name: SPRING_ZIPKIN_BASE_URL
-              value: "http://zipkin-service:9411"
-
-            - name: SPRING_CONFIG_IMPORT
-              value: "optional:configserver:http://cloud-config:9296"
-
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: "http://service-discovery:8761/eureka/"
-
-            # ✅ InstanceId único por Pod (ideal en K8s)
-            - name: EUREKA_INSTANCE_INSTANCE_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-
-            # ✅ Garantiza que Eureka use IP
-            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
-              value: "true"
-
             - name: SPRING_APPLICATION_NAME
               value: "PROXY-CLIENT"
-
             - name: SERVER_PORT
               value: "8900"
-
             - name: SERVER_SERVLET_CONTEXT_PATH
               value: "/proxy-client"
 
+            # Servicios externos
+            - name: SPRING_ZIPKIN_BASE_URL
+              value: "http://zipkin-service:9411"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://cloud-config:9296"
+
+            # Eureka - Variables correctas según Cloud Config
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://service-discovery:8761/eureka/"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
+
           livenessProbe:
             httpGet:
-              path: /proxy-client/actuator/health
+              path: /proxy-client/actuator/health/liveness
               port: 8900
             initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 3
-
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /proxy-client/actuator/health
+              path: /proxy-client/actuator/health/readiness
               port: 8900
-            initialDelaySeconds: 150
-            periodSeconds: 10
+            initialDelaySeconds: 90
+            periodSeconds: 5
             failureThreshold: 3
-
+            timeoutSeconds: 3
           volumeMounts:
             - name: common-config-volume
               mountPath: /app/config

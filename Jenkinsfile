@@ -72,47 +72,47 @@ pipeline {
             }
         }
 
-        stage('Upload Artifacts') {
-            when { branch 'master' }
-            steps {
-                script {
-                    def services = [
-                            'api-gateway',
-                            'cloud-config',
-                            'favourite-service',
-                            'order-service',
-                            'payment-service',
-                            'product-service',
-                            'proxy-client',
-                            'service-discovery',
-                            'shipping-service',
-                            'user-service'
-                    ]
-
-                    def version = "${env.BUILD_ID}-${new Date().format('yyyyMMdd-HHmmss')}"
-
-                    def artifacts = services.collect { service ->
-                        [
-                                artifactId: service,
-                                classifier: '',
-                                file: "${service}/target/${service}-v0.1.0.jar",
-                                type: 'jar'
-                        ]
-                    }
-
-                    nexusArtifactUploader(
-                            nexusVersion: 'nexus3',
-                            protocol: 'http',
-                            nexusUrl: 'k8s-artifact-sonatype-d27d7dd556-984300001.us-east-1.elb.amazonaws.com',
-                            groupId: 'com.ecommerce',
-                            version: version,
-                            repository: 'ecommerce-app',
-                            credentialsId: 'nexusLogin',
-                            artifacts: artifacts
-                    )
-                }
-            }
-        }
+//        stage('Upload Artifacts') {
+//            when { branch 'master' }
+//            steps {
+//                script {
+//                    def services = [
+//                            'api-gateway',
+//                            'cloud-config',
+//                            'favourite-service',
+//                            'order-service',
+//                            'payment-service',
+//                            'product-service',
+//                            'proxy-client',
+//                            'service-discovery',
+//                            'shipping-service',
+//                            'user-service'
+//                    ]
+//
+//                    def version = "${env.BUILD_ID}-${new Date().format('yyyyMMdd-HHmmss')}"
+//
+//                    def artifacts = services.collect { service ->
+//                        [
+//                                artifactId: service,
+//                                classifier: '',
+//                                file: "${service}/target/${service}-v0.1.0.jar",
+//                                type: 'jar'
+//                        ]
+//                    }
+//
+//                    nexusArtifactUploader(
+//                            nexusVersion: 'nexus3',
+//                            protocol: 'http',
+//                            nexusUrl: 'k8s-artifact-sonatype-d27d7dd556-984300001.us-east-1.elb.amazonaws.com',
+//                            groupId: 'com.ecommerce',
+//                            version: version,
+//                            repository: 'ecommerce-app',
+//                            credentialsId: 'nexusLogin',
+//                            artifacts: artifacts
+//                    )
+//                }
+//            }
+//        }
 
         stage('Run SonarQube Analysis') {
             when { branch 'stage' }
@@ -218,42 +218,42 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images of each service') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                script {
-                    SERVICES.split().each { service ->
-                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
-                    }
-                }
-            }
-        }
-
-        stage('Push Docker Images to Docker Hub') {
-            when {
-                anyOf {
-                    branch 'dev'
-                    branch 'stage'
-                    branch 'master'
-                }
-            }
-            steps {
-                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
-                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
-                    script {
-                        SERVICES.split().each { service ->
-                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
-                        }
-                    }
-                }
-            }
-        }
+//        stage('Build Docker Images of each service') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                script {
+//                    SERVICES.split().each { service ->
+//                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKERHUB_USER}/${service}:${IMAGE_TAG} --build-arg SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} --push ./${service}"
+//                    }
+//                }
+//            }
+//        }
+//
+//        stage('Push Docker Images to Docker Hub') {
+//            when {
+//                anyOf {
+//                    branch 'dev'
+//                    branch 'stage'
+//                    branch 'master'
+//                }
+//            }
+//            steps {
+//                withCredentials([string(credentialsId: "${DOCKER_CREDENTIALS_ID}", variable: 'docker_pwd')]) {
+//                    sh "docker login -u ${DOCKERHUB_USER} -p ${docker_pwd}"
+//                    script {
+//                        SERVICES.split().each { service ->
+//                            sh "docker push ${DOCKERHUB_USER}/${service}:${IMAGE_TAG}"
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
         stage('Unit Tests & Coverage') {
@@ -572,26 +572,26 @@ pipeline {
             }
         }
 
-        stage('Waiting approval for deployment') {
-            when { branch 'master' }
-            steps {
-                script {
-                    emailext(
-                            to: '$DEFAULT_RECIPIENTS',
-                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
-                            body: """\
-                        Hello dead man (daniel) and Goat Ossa,
-                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
-                        Please review the changes and approve or abort
-                        You can access the build details here:
-                        ${env.BUILD_URL}
-                        """
-                    )
-
-                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
-                }
-            }
-        }
+//        stage('Waiting approval for deployment') {
+//            when { branch 'master' }
+//            steps {
+//                script {
+//                    emailext(
+//                            to: '$DEFAULT_RECIPIENTS',
+//                            subject: "Action Required: Approval Needed for Deploy of Build #${env.BUILD_NUMBER}",
+//                            body: """\
+//                        Hello dead man (daniel) and Goat Ossa,
+//                        The build #${env.BUILD_NUMBER} for branch *${env.BRANCH_NAME}* has completed and is pending approval for deployment.
+//                        Please review the changes and approve or abort
+//                        You can access the build details here:
+//                        ${env.BUILD_URL}
+//                        """
+//                    )
+//
+//                    input message: 'Approve deployment to production (kubernetes) ?', ok: 'Deploy'
+//                }
+//            }
+//        }
 
         stage('Configure kubeconfig') {
             when { branch 'master' }
