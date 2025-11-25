@@ -701,7 +701,7 @@ pipeline {
                 '''
 
                         def appServices = [
-                                'order-service','product-service','user-service'
+                                'product-service','user-service','order-service','payment-service','favourite-service','shipping-service','proxy-client','api-gateway'
                         ]
 
                         for (svc in appServices) {
