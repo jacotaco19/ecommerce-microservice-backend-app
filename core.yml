@@ -20,7 +20,7 @@ services:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://cloud-config-container:9296/
 
   cloud-config-container:
-    image: jacoboossag/service-discovery
+    image: jacoboossag/cloud-config:dev
     ports:
       - "9296:9296"
     networks:
