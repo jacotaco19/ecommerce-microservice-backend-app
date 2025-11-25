@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment-service
-  #namespace: ecommerce-app
+  namespace: microservices
   labels:
     app: payment-service
 spec:
@@ -20,13 +20,6 @@ spec:
           image: jacoboossag/payment-service:dev
           ports:
             - containerPort: 8400
-          # resources:
-          #   requests:
-          #     memory: "128Mi"
-          #     cpu: "80m"
-          #   limits:
-          #     memory: "384Mi"
-          #     cpu: "250m"
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
@@ -36,24 +29,29 @@ spec:
               value: "optional:configserver:http://cloud-config:9296"
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://service-discovery:8761/eureka/"
-            - name: EUREKA_INSTANCE
-              value: "payment-service"
-           
+
+            # ⬇️ Eureka registrará instancia usando IP del Pod
+            - name: EUREKA_INSTANCE_INSTANCE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+            # ⬇️ Garantiza que use IP y no hostname
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
+
             - name: SPRING_APPLICATION_NAME
               value: "PAYMENT-SERVICE"
             - name: SERVER_PORT
               value: "8400"
             - name: SERVER_SERVLET_CONTEXT_PATH
               value: "/payment-service"
-          # volumeMounts:
-          #   - name: config-volume
-          #     mountPath: /etc/config
-          # Opcional: Liveness and Readiness Probes
+
           livenessProbe:
             httpGet:
               path: /payment-service/actuator/health
               port: 8400
-            initialDelaySeconds: 60 # Tiempo para que el servicio inicie completamente
+            initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 3
           readinessProbe:

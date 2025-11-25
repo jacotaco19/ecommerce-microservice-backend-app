@@ -4,7 +4,7 @@ metadata:
   name: service-discovery
   namespace: microservices
 spec:
-  type: ClusterIP  # ← Cambiar aquí
+  type: ClusterIP
   selector:
     app: service-discovery
   ports:

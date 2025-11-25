@@ -20,17 +20,27 @@ spec:
           image: jacoboossag/cloud-config:dev
           ports:
             - containerPort: 9296
-          command: ["java"]
-          args:
-            - "-jar"
-            - "/home/app/cloud-config.jar"
-            - "--spring.profiles.active=dev"
-            - "--eureka.client.serviceUrl.defaultZone=http://service-discovery:8761/eureka/"
-            - "--eureka.instance.preferIpAddress=true"
-            - "--eureka.instance.hostname=cloud-config"
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+
+            # Zipkin
             - name: SPRING_ZIPKIN_BASE_URL
-              value: "http://zipkin-service:9411/"
+              value: "http://zipkin-service:9411"
+
+            # Eureka
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              value: "http://service-discovery:8761/eureka/"
+
+            # Required by your centralized config
+            - name: EUREKA_INSTANCE
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
+
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -42,6 +52,6 @@ spec:
             httpGet:
               path: /actuator/health
               port: 9296
-            initialDelaySeconds: 120
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5

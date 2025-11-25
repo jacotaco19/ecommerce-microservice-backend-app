@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: favourite-service
+  namespace: microservices
   labels:
     app: favourite-service
 spec:
@@ -15,61 +16,67 @@ spec:
         app: favourite-service
     spec:
       containers:
-      - name: favourite-service
-        image: jacoboossag/favourite-service:dev
-        ports:
-        - containerPort: 8800
-        # resources:
-        #   requests:
-        #     memory: "256Mi"
-        #     cpu: "80m"
-        #   limits:
-        #     memory: "384Mi"
-        #     cpu: "250m"
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: "dev"
-        - name: SPRING_ZIPKIN_BASE_URL
-          value: "http://zipkin-service:9411"
-        - name: SPRING_CONFIG_IMPORT
-          value: "optional:configserver:http://cloud-config:9296"
-        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-          value: "http://service-discovery:8761/eureka/"
-        - name: EUREKA_INSTANCE
-          value: "favourite-service"
+        - name: favourite-service
+          image: jacoboossag/favourite-service:dev
+          ports:
+            - containerPort: 8800
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
 
-          
-        - name: SPRING_APPLICATION_NAME
-          value: "FAVOURITE-SERVICE"
-        - name: SERVER_PORT
-          value: "8800"
-        - name: SERVER_SERVLET_CONTEXT_PATH
-          value: "/favourite-service"
-        # # Variables adicionales para base de datos
-        # - name: SPRING_DATASOURCE_URL
-        #   value: "jdbc:h2:mem:ecommerce_dev_db;DB_CLOSE_ON_EXIT=FALSE"
-        # - name: SPRING_DATASOURCE_USERNAME
-        #   value: "sa"
-        # - name: SPRING_DATASOURCE_PASSWORD
-        #   value: ""
-        livenessProbe:
-          httpGet:
-            path: /favourite-service/actuator/health
-            port: 8800
-          initialDelaySeconds: 180
-          periodSeconds: 10
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /favourite-service/actuator/health
-            port: 8800
-          initialDelaySeconds: 150
-          periodSeconds: 10
-          failureThreshold: 3
-        volumeMounts:
-        - name: common-config-volume
-          mountPath: /app/config
+            # Application Name (used by Eureka)
+            - name: SPRING_APPLICATION_NAME
+              value: "FAVOURITE-SERVICE"
+
+            # Zipkin
+            - name: SPRING_ZIPKIN_BASE_URL
+              value: "http://zipkin-service:9411"
+
+            # Cloud Config Server
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://cloud-config:9296"
+
+            # Eureka Discovery
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://service-discovery:8761/eureka/"
+
+            # Registers Pod IP as instance hostname (required by your config repo)
+            - name: EUREKA_INSTANCE
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
+
+            # Spring Boot Context
+            - name: SERVER_PORT
+              value: "8800"
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: "/favourite-service"
+
+          livenessProbe:
+            httpGet:
+              path: /favourite-service/actuator/health/liveness
+              port: 8800
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              path: /favourite-service/actuator/health/readiness
+              port: 8800
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          volumeMounts:
+            - name: common-config-volume
+              mountPath: /app/config
       volumes:
-      - name: common-config-volume
-        configMap:
-          name: common-config 
+        - name: common-config-volume
+          configMap:
+            name: common-config
